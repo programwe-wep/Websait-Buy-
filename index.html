@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج التواصل</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #075e54;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #075e54;
+        }
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        button {
+            background-color: #075e54;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 0;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #128c7e;
+        }
+        .success-message {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .required {
+            color: red;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>نموذج التواصل</h1>
+        
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="name">الاسم الكامل <span class="required">*</span></label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني <span class="required">*</span></label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="project">نوع المشروع <span class="required">*</span></label>
+                <select id="project" name="project" required>
+                    <option value="">اختر نوع المشروع</option>
+                    <option value="موقع ويب">موقع ويب</option>
+                    <option value="تطبيق جوال">تطبيق جوال</option>
+                    <option value="تصميم جرافيك">تصميم جرافيك</option>
+                    <option value="تسويق إلكتروني">تسويق إلكتروني</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="modifications">التعديلات المطلوبة</label>
+                <textarea id="modifications" name="modifications"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">الرسالة <span class="required">*</span></label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+            
+            <button type="submit">إرسال</button>
+        </form>
+        
+        <div id="successMessage" class="success-message">
+            تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // جمع بيانات النموذج
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const project = document.getElementById('project').value;
+            const modifications = document.getElementById('modifications').value;
+            const message = document.getElementById('message').value;
+            
+            // رقم الواتساب المستهدف
+            const phoneNumber = '01223961290';
+            
+            // إنشاء نص الرسالة
+            let whatsappMessage = `رسالة جديدة من نموذج التواصل:\n\n`;
+            whatsappMessage += `الاسم: ${name}\n`;
+            whatsappMessage += `البريد الإلكتروني: ${email}\n`;
+            whatsappMessage += `نوع المشروع: ${project}\n`;
+            whatsappMessage += `التعديلات المطلوبة: ${modifications || 'لا يوجد'}\n`;
+            whatsappMessage += `الرسالة: ${message}\n`;
+            
+            // ترميح النص للرابط
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+            
+            // إنشاء رابط واتساب
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            
+            // محاولة الإرسال عبر واجهة برمجة التطبيقات (API)
+            sendViaAPI(phoneNumber, whatsappMessage)
+                .then(() => {
+                    showSuccessMessage();
+                })
+                .catch(() => {
+                    // إذا فشلت محاولة الإرسال عبر API، نفتح نافذة جديدة
+                    window.open(whatsappUrl, '_blank');
+                    showSuccessMessage();
+                });
+        });
+        
+        function showSuccessMessage() {
+            document.getElementById('contactForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('contactForm').reset();
+            
+            // إخفاء الرسالة بعد 5 ثواني
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+                document.getElementById('contactForm').style.display = 'block';
+            }, 5000);
+        }
+        
+        // هذه الدالة افتراضية - تحتاج لاستبدالها بخدمة API حقيقية
+        function sendViaAPI(phone, message) {
+            return new Promise((resolve, reject) => {
+                // هنا يمكنك استخدام أي خدمة API لإرسال رسائل واتساب
+                // مثل Twilio أو خدمة مخصصة
+                
+                // لأغراض العرض، سنفترض أن الإرسال فشل ليتم فتح الواتساب
+                reject('No API configured');
+                
+                /*
+                // مثال لاستخدام API حقيقي:
+                fetch('https://your-whatsapp-api.com/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone: phone,
+                        message: message
+                    })
+                })
+                .then(response => response.json())
+                .then(data => resolve(data))
+                .catch(error => reject(error));
+                */
+            });
+        }
+    </script>
+</body>
+</html>
